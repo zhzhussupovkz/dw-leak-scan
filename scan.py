@@ -70,7 +70,7 @@ listing_q = '%22Index of /%22'
 cassandra_q = "type:%22cassandra%22"
 
 class minSize:
-    MONGODB = 25000000000
+    MONGODB = 23 * 1024 * 1024 * 1024
 
 # format docs count
 def millify(n):
@@ -106,7 +106,7 @@ def normalize_elastic(results):
     if results:
         for service in results:
             print(bcolors.BLUE + 'http://' + service['target']['ip'] + ":" + str(service['target']['port']) + "/_cat/indices" + bcolors.ENDC)
-            print(service['result']['data']['cluster_name'])
+            print(bcolors.PURPLE + service['result']['data']['cluster_name'] + bcolors.ENDC)
             try:
                 for i in service['result']['data']['indices']:
                     if i['size_in_bytes'] > size:
@@ -153,6 +153,49 @@ def normalize_mongodb(results):
             else:
                 print("-----------------------------")
 
+# normalize couchdb
+def normalize_couchdb(results):
+    if results:
+        for service in results:
+            print(bcolors.BLUE + 'https://' + service['target']['ip'] + ":" + str(service['target']['port']) +"/_utils" + bcolors.ENDC)
+            try:
+                couch_json = json.loads(service['result']['data']['response']['body'])
+                print(bcolors.YELLOW + "status code: " + str(service['result']['data']['response']['statusCode']) + bcolors.ENDC)
+                print(bcolors.PURPLE + "vendor: " + couch_json['vendor']['name'] + bcolors.ENDC)
+                print('features:')
+                for i in couch_json['features']:
+                    print(bcolors.GREEN + i + bcolors.ENDC)
+            except Exception as e:
+                if 'state' in service['result']['data']:
+                    print(bcolors.YELLOW + "server status: " + service['result']['data']['state']['state'] + bcolors.ENDC)
+                else:
+                    print(bcolors.RED + "cannot retrieve information" + bcolors.ENDC)
+
+            print("-----------------------------")
+
+# normalize cassandra
+def normalize_cassandra(results):
+    if results:
+        for service in results:
+            print(bcolors.BLUE + 'IP: ' + service['target']['ip'] + ":" + str(service['target']['port']) + bcolors.ENDC)
+            try:
+                print(bcolors.PURPLE + "cluster name: " + service['result']['data']['info'][0]['cluster_name'] + bcolors.ENDC)
+                print(bcolors.YELLOW + "datacenter: " + service['result']['data']['info'][0]['data_center'] + bcolors.ENDC)
+
+                for keyspace in service['result']['data']['keyspaces']:
+                    if keyspace == 'system' or keyspace =="system_traces" or keyspace == "system_schema" or keyspace=='system_auth' or keyspace=='system_distributed':
+                        pass
+                    else:
+                        print(bcolors.GREEN + "keyspace: " + keyspace + bcolors.ENDC)
+                        print("tables: ")
+                        for table in service['result']['data']['keyspaces'][keyspace]['tables']:
+                            print(bcolors.YELLOW + table + bcolors.ENDC)
+                print("-----------------------------")
+            except Exception as e:
+                print("-----------------------------")
+                pass
+
+# normalize listing
 def normalize_listing(results):
     if results:
         for service in results:
@@ -192,6 +235,7 @@ def normalize_listing(results):
             print("-----------------------------")
 
 
+
 if elastic:
     for page in range(first, last):
         print('----------------------------------elasicsearch result - page ' + 
@@ -215,6 +259,22 @@ if mongodb:
         '--------------------------------')
         mongodb_results = binary_edge_request(mongodb_q + " " + query, page)
         normalize_mongodb(mongodb_results)
+
+if couchdb:
+    for page in range(first, last):
+        print('----------------------------------couchdb result - page ' + 
+        str(page) + 
+        '--------------------------------')
+        couchdb_results = binary_edge_request(couchdb_q + " " + query, page)
+        normalize_couchdb(couchdb_results)
+
+if cassandra:
+    for page in range(first, last):
+        print('----------------------------------cassandra result - page ' + 
+        str(page) + 
+        '--------------------------------')
+        cassandra_results = binary_edge_request(cassandra_q + " " + query, page)
+        normalize_cassandra(cassandra_results)
 
 if listing:
     for page in range(first, last):
