@@ -5,6 +5,7 @@ import json
 import sys
 import argparse
 from progress.bar import Bar
+import pycountry 
 
 class bcolors:
     HEADER = '\033[95m'
@@ -89,6 +90,12 @@ def sizeof_fmt(num, suffix='B'):
         num /= 1024.0
     return "%.1f%s%s" % (num, 'Y', suffix)
 
+# get country name
+def get_country(code):
+    country = pycountry.countries.get(alpha_2=code.upper())
+    country_name = country.name if country else str(code.upper())
+    return " " + str(country_name)
+
 def binary_edge_request(query, page):
     headers = {'X-Key': BE_API_KEY}
     url = 'https://api.binaryedge.io/v2/query/search?query=' + query + '&page=' + str(page)
@@ -105,7 +112,7 @@ def binary_edge_request(query, page):
 def normalize_elastic(results):
     if results:
         for service in results:
-            print(bcolors.BLUE + 'http://' + service['target']['ip'] + ":" + str(service['target']['port']) + "/_cat/indices" + bcolors.ENDC)
+            print(bcolors.BLUE + 'http://' + service['target']['ip'] + ":" + str(service['target']['port']) + "/_cat/indices" + get_country(service['origin']['country']) + bcolors.ENDC)
             print(bcolors.PURPLE + service['result']['data']['cluster_name'] + bcolors.ENDC)
             try:
                 for i in service['result']['data']['indices']:
@@ -120,7 +127,7 @@ def normalize_elastic(results):
 def normalize_kibana(results):
     if results:
         for service in results:
-            print(bcolors.BLUE + 'http://' + service['target']['ip'] + ":" + str(service['target']['port'])+"/app/kibana#/discover?_g=()" + bcolors.ENDC)
+            print(bcolors.BLUE + 'http://' + service['target']['ip'] + ":" + str(service['target']['port']) + "/app/kibana#/discover?_g=()" + get_country(service['origin']['country']) + bcolors.ENDC)
             print(bcolors.YELLOW + "server status: " + service['result']['data']['state']['state'] + bcolors.ENDC)
             print("-----------------------")
 
@@ -128,7 +135,7 @@ def normalize_kibana(results):
 def normalize_mongodb(results):
     if results:
         for service in results:
-            print(bcolors.BLUE + 'IP: ' + service['target']['ip'] + ":" + str(service['target']['port']) + bcolors.ENDC)
+            print(bcolors.BLUE + 'IP: ' + service['target']['ip'] + ":" + str(service['target']['port']) + get_country(service['origin']['country']) + bcolors.ENDC)
             if not service['result']['error']:
                 try:
                     if service['result']['data']['listDatabases']['totalSize'] > minSize.MONGODB:
@@ -157,7 +164,7 @@ def normalize_mongodb(results):
 def normalize_couchdb(results):
     if results:
         for service in results:
-            print(bcolors.BLUE + 'https://' + service['target']['ip'] + ":" + str(service['target']['port']) +"/_utils" + bcolors.ENDC)
+            print(bcolors.BLUE + 'https://' + service['target']['ip'] + ":" + str(service['target']['port']) +"/_utils" + get_country(service['origin']['country']) + bcolors.ENDC)
             try:
                 couch_json = json.loads(service['result']['data']['response']['body'])
                 print(bcolors.YELLOW + "status code: " + str(service['result']['data']['response']['statusCode']) + bcolors.ENDC)
@@ -177,7 +184,7 @@ def normalize_couchdb(results):
 def normalize_cassandra(results):
     if results:
         for service in results:
-            print(bcolors.BLUE + 'IP: ' + service['target']['ip'] + ":" + str(service['target']['port']) + bcolors.ENDC)
+            print(bcolors.BLUE + 'IP: ' + service['target']['ip'] + ":" + str(service['target']['port']) + get_country(service['origin']['country']) + bcolors.ENDC)
             try:
                 print(bcolors.PURPLE + "cluster name: " + service['result']['data']['info'][0]['cluster_name'] + bcolors.ENDC)
                 print(bcolors.YELLOW + "datacenter: " + service['result']['data']['info'][0]['data_center'] + bcolors.ENDC)
@@ -200,7 +207,8 @@ def normalize_listing(results):
     if results:
         for service in results:
             dir = False
-            print(bcolors.BLUE + 'https://' + service['target']['ip'] + ":" + str(service['target']['port']) + bcolors.ENDC)
+            schema = "https" if service['target']['port'] == 443 else "http"
+            print(bcolors.BLUE + schema + '://' + service['target']['ip'] + ":" + str(service['target']['port']) + get_country(service['origin']['country']) + bcolors.ENDC)
 
             try:
                 print(bcolors.PURPLE + "product: " + 
