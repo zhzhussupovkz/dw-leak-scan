@@ -34,7 +34,21 @@ python scan.py --elastic --first 1 --last 3 --filter "country:RU"
 
 Search open mongodb databases with keyword "book" (3-4 pages):
 ```console
-python scan.py --elastic --first 3 --last 4 --filter "book"
+python scan.py --mongodb --first 3 --last 4 --filter "book"
+```
+
+Search open listing with keyword "facebook.csv" (1 page):
+```console
+python scan.py --listing --first 1 --filter "facebook.csv"
+```
+
+Search open couchdb databases with keyword "linux" (5-9 pages):
+```console
+python scan.py --couchdb --first 5 --last 9 --filter "linux"
+```
+Search open cassandra databases with keyword "cookbook" (1-4 pages):
+```console
+python scan.py --cassandra --first 1 --last 4 --filter "cookbook"
 ```
 
 ## scanner has been made for educational purposes only.
