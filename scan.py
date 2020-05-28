@@ -21,20 +21,7 @@ class bcolors:
     UNDERLINE = '\033[4m'
 
 # your binaryedge.io API key
-#BE_API_KEY = '7a305eae-068d-4921-ab57-85352c1eb565'
-#BE_API_KEY = '5f8783d6-bc87-4512-8378-6b9f397b25d8'
-BE_API_KEY = '0e4527bb-9f3d-4f78-b59c-2769eefb2c2a'
-#BE_API_KEY = '0e27af82-2366-41df-9660-dabc437b8b4b'
-#BE_API_KEY = '9a8a25fc-eb58-4f36-8acc-a339d797c1b5'
-#BE_API_KEY = 'a09c1055-1576-490c-bf8b-923f762002ff'
-#BE_API_KEY = 'edf78190-2a2b-4e95-9ff9-3e91bdb3fd79'
-#BE_API_KEY = '6cc114e3-c111-4968-93a9-e5a0c3d8ec7b'
-#BE_API_KEY = 'ea8084c2-0f17-4121-801c-efb72a512414'
-#BE_API_KEY = 'baadbb15-28cb-4d68-b6fd-78659d20afca'
-#BE_API_KEY = 'a2393819-1c53-4515-816a-312e597bbe4b'
-#BE_API_KEY = '1cf16fe0-b32e-4c6e-95f0-365597bdf0fb'
-#BE_API_KEY = '2b6924a2-3bc4-43c2-be87-00959fadb085'
-#BE_API_KEY = 'ae86a4ec-1192-48a0-a140-8c0aeedf97ec'
+BE_API_KEY = 'API KEY'
 
 powered = bcolors.GREEN + """
 dw-leak-scan - scan open databases - powered by https://www.binaryedge.io/
